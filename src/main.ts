@@ -1,8 +1,12 @@
 import express from 'express'
+import morgan from 'morgan'
+import 'express-async-errors'
 
 const PORT = 3000
 
 const app = express()
+
+app.use(morgan('dev'))
 
 app.get('/api/hello', async (req, res) => {
   res.json({
@@ -10,6 +14,24 @@ app.get('/api/hello', async (req, res) => {
   })
 })
 
+app.get('/api/error', async (req, res) => {
+  throw new Error('Error Endpoint')
+})
+
+app.use(errorHandler)
+
 app.listen(PORT, () => {
   console.log(`Reversi application started: http://localhost:${PORT}`)
 })
+
+function errorHandler(
+  err: any,
+  _req: express.Request,
+  res: express.Response,
+  _next: express.NextFunction
+) {
+  console.error('Unexpected error occurred', err)
+  res.status(500).send({
+    message: 'Unexpected error occurred',
+  })
+}
