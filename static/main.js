@@ -1,12 +1,21 @@
+const EMPTY = 0
+const DARK = 1
+const LIGHT = 2
+
 const boardElement = document.getElementById('board')
 
 async function showBoard() {
+  const turnCount = 0
+  const response = await fetch(`/api/games/latest/turns/${turnCount}`)
+  const responseBody = await response.json()
+  const board = responseBody.board
+
   // 子要素があればすべて削除する
   while (boardElement.firstChild) {
     boardElement.removeChild(boardElement.firstChild)
   }
 
-  INITIAL_BOARD.forEach((line) => {
+  board.forEach((line) => {
     line.forEach((square) => {
       // <div class="square"> を追加
       const squareElement = document.createElement('div')
