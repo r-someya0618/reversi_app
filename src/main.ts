@@ -144,13 +144,12 @@ app.get('/api/games/latest/turns/:turnCount', async (req, res) => {
 })
 
 app.post('/api/games/latest/turns', async (req, res) => {
+  // ターン数と置く石の情報をリクエストから取得
   const turnCount = parseInt(req.body.turnCount)
   const disc = parseInt(req.body.move.disc)
   const x = parseInt(req.body.move.x)
   const y = parseInt(req.body.move.y)
-  console.log(turnCount, disc, x, y)
 
-  // 1つ前のターンを取得する
   const conn = await connectMySQl()
   try {
     // 最新のgameテーブルの対戦情報を取得
@@ -161,13 +160,14 @@ app.post('/api/games/latest/turns', async (req, res) => {
 
     // 一つ前のターン数を設定
     const previousTurnCount = turnCount - 1
+    //  一つ前のターンのデータを取得
     const turnSelectResult = await conn.execute<mysql.RowDataPacket[]>(
       'select id, game_id, turn_count, next_disc, end_at from turns where game_id = ? and turn_count = ?',
       [game['id'], previousTurnCount]
     )
     const turn = turnSelectResult[0][0]
 
-    // turnの情報から盤面情報を取得
+    // turnの情報から一つ前の盤面情報を取得
     const squaresSelectResult = await conn.execute<mysql.RowDataPacket[]>(
       'select id, turn_id, x, y, disc from squares where turn_id = ?',
       [turn['id']]
@@ -211,6 +211,7 @@ app.post('/api/games/latest/turns', async (req, res) => {
         .map(() => '(?, ?, ?, ?)')
         .join(', ')
 
+    // 盤面を登録
     const squaresInsertValues: any[] = []
     board.forEach((line, y) => {
       // 一次元目の配列の要素数のカウント => 縦方向の数 = y
