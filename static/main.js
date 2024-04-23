@@ -1,18 +1,3 @@
-const EMPTY = 0
-const DARK = 1
-const LIGHT = 2
-
-const INITIAL_BOARD = [
-  [EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY],
-  [EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY],
-  [EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY],
-  [EMPTY, EMPTY, EMPTY, DARK, LIGHT, EMPTY, EMPTY, EMPTY],
-  [EMPTY, EMPTY, EMPTY, LIGHT, DARK, EMPTY, EMPTY, EMPTY],
-  [EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY],
-  [EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY],
-  [EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY],
-]
-
 const boardElement = document.getElementById('board')
 
 async function showBoard() {
@@ -40,7 +25,15 @@ async function showBoard() {
     })
   })
 }
+
+async function registerGame() {
+  await fetch('/api/games', {
+    method: 'POST',
+  })
+}
+
 async function main() {
+  await registerGame()
   await showBoard()
 }
 
