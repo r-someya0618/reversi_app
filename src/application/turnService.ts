@@ -1,19 +1,8 @@
-import { GameGateway } from '../dataaccess/gameGateway'
-import { TurnGateway } from '../dataaccess/turnGateway'
-import { SquareGateway } from '../dataaccess/squareGateway'
-import { MoveGateway } from '../dataaccess/moveGateway'
-import { connectMySQl } from '../dataaccess/connection'
-import { Turn } from '../domain/turn/turn'
-import { Board } from '../domain/turn/board'
+import { connectMySQl } from '../infrastructure/connection'
 import { toDisc } from '../domain/turn/disc'
 import { Point } from '../domain/turn/point'
 import { TurnRepository } from '../domain/turn/turnRepository'
 import { GameRepository } from '../domain/game/gameRepository'
-
-const gameGateway = new GameGateway()
-const turnGateway = new TurnGateway()
-const moveGateway = new MoveGateway()
-const squareGateway = new SquareGateway()
 
 const turnRepository = new TurnRepository()
 const gameRepository = new GameRepository()
