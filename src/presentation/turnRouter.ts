@@ -1,5 +1,7 @@
 import express from 'express'
 import { TurnService } from '../application/service/turnService'
+import { Point } from '../domain/model/turn/point'
+import { toDisc } from '../domain/model/turn/disc'
 
 export const turnRouter = express.Router()
 const turnService = new TurnService()
@@ -41,11 +43,10 @@ turnRouter.post(
   async (req: express.Request<{}, {}, TurnGetRequestBody>, res) => {
     // ターン数と置く石の情報をリクエストから取得
     const turnCount = req.body.turnCount
-    const disc = req.body.move.disc
-    const x = req.body.move.x
-    const y = req.body.move.y
+    const disc = toDisc(req.body.move.disc)
+    const point = new Point(req.body.move.x, req.body.move.y)
 
-    await turnService.registerTurn(turnCount, disc, x, y)
+    await turnService.registerTurn(turnCount, disc, point)
 
     res.status(201).end()
   }

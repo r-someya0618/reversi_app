@@ -1,12 +1,15 @@
 import { connectMySQl } from '../../infrastructure/connection'
-import { toDisc } from '../../domain/model/turn/disc'
+import { Disc, toDisc } from '../../domain/model/turn/disc'
 import { Point } from '../../domain/model/turn/point'
 import { TurnRepository } from '../../domain/model/turn/turnRepository'
 import { GameRepository } from '../../domain/model/game/gameRepository'
+import { GameResultRepository } from '../../domain/model/gameResult/gameResultRepository'
 import { ApplicationError } from '../error/applicationError'
+import { GameResult } from '../../domain/model/gameResult/gameResult'
 
 const turnRepository = new TurnRepository()
 const gameRepository = new GameRepository()
+const gameResultRepository = new GameResultRepository()
 
 class FindLatestGameTurnByTurnCountOutPut {
   constructor(
@@ -56,19 +59,23 @@ export class TurnService {
         turnCount
       )
 
+      let gameResult: GameResult | undefined
+      if (turn.gameEnded()) {
+        gameResult = await gameResultRepository.findForGameId(conn, game.id)
+      }
+
       return new FindLatestGameTurnByTurnCountOutPut(
         turnCount,
         turn.board.discs,
         turn.nextDisc,
-        // TODO: 決着がついた場合にgame_resultsテーブルから取得
-        undefined
+        gameResult?.winnerDisc
       )
     } finally {
       await conn.end()
     }
   }
 
-  async registerTurn(turnCount: number, disc: number, x: number, y: number) {
+  async registerTurn(turnCount: number, disc: Disc, point: Point) {
     const conn = await connectMySQl()
     try {
       // 最新のgameテーブルの対戦情報を取得
@@ -91,10 +98,17 @@ export class TurnService {
       )
 
       // 石を置く
-      const newTurn = previousTurn.placeNext(toDisc(disc), new Point(x, y))
+      const newTurn = previousTurn.placeNext(disc, point)
 
       // ターンを保存する
       await turnRepository.save(conn, newTurn)
+
+      // 勝敗が決した場合、対戦結果を保存
+      if (newTurn.gameEnded()) {
+        const winnerDisc = newTurn.winnerDisc()
+        const gameResult = new GameResult(game.id, winnerDisc, newTurn.endAt)
+        await gameResultRepository.save(conn, gameResult)
+      }
 
       await conn.commit()
     } finally {

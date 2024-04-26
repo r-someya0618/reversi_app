@@ -45,10 +45,13 @@ export class TurnRepository {
       move = new Move(toDisc(moveRecord.disc), new Point(moveRecord.x, moveRecord.y))
     }
 
+    const nextDisc =
+      turnRecord.nextDisc === null ? undefined : toDisc(turnRecord.nextDisc)
+
     return new Turn(
       gameId,
       turnCount,
-      toDisc(turnRecord.nextDisc),
+      nextDisc,
       move,
       new Board(board),
       turnRecord.endAt

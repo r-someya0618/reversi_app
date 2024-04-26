@@ -55,14 +55,9 @@ export class Board {
       // Xは右に1つずれていて、Yは上に一つずれている
       let cursorX = walledX + xMove
       let cursorY = walledY + yMove
-      // console.log({ walledX })
-      // console.log({ cursorX })
-      // console.log({ walledY })
-      // console.log({ cursorY })
-      // console.log(this._walledDiscs[cursorY][cursorX])
+
       // 手と逆の色の石がある間、一つずつ見ていく
       while (isOppositeDisc(move.disc, this._walledDiscs[cursorY][cursorX])) {
-        console.log('while')
         // 番兵を考慮して-1する
         flipCandidate.push(new Point(cursorX - 1, cursorY - 1))
         cursorX += xMove
@@ -94,6 +89,37 @@ export class Board {
     checkFlipPoints(1, -1)
 
     return flipPoints
+  }
+
+  existValidMove(disc: Disc): boolean {
+    for (let y = 0; y < this._discs.length; y++) {
+      const line = this._discs[y]
+
+      for (let x = 0; x < line.length; x++) {
+        const discOnBoard = line[x]
+
+        // 空でない点は無視
+        if (discOnBoard !== Disc.Empty) {
+          continue
+        }
+
+        const move = new Move(disc, new Point(x, y))
+        const flipPoints = this.listFlipPoints(move)
+
+        if (flipPoints.length !== 0) {
+          return true
+        }
+      }
+    }
+    return false
+  }
+
+  count(disc: Disc): number {
+    return this._discs
+      .map((line) => {
+        return line.filter((discOnBoard) => discOnBoard === disc).length
+      })
+      .reduce((v1, v2) => v1 + v2, 0)
   }
 
   private wallDiscs() {
